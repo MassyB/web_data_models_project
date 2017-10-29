@@ -1,4 +1,3 @@
-import re
 from collections import defaultdict
 
 EPSILON = '_'
@@ -16,7 +15,7 @@ class State:
     def addTransition(self, letter, state: 'State'):
         self.transitions[letter] = state
 
-    def addEpsilonTransition(self, state:'State'):
+    def addEpsilonTransition(self, state: 'State'):
         self.transitions[EPSILON] = state
 
     def getNextState(self, letter):
@@ -28,7 +27,7 @@ class State:
     def clone(self):
         state = State()
         state.transitions = self.transitions
-        return  state
+        return state
 
 
 class Automaton:
@@ -48,16 +47,16 @@ class Automaton:
     def setStartingState(self, startingState):
         self.startingState = startingState
 
-    def addTransition(self,letter):
+    def addTransition(self, letter):
         if self.finalState is None:
             # the automaton was previously empty
             self.startingState = State()
             self.finalState = State()
-            self.startingState.addTransition(letter,self.finalState)
+            self.startingState.addTransition(letter, self.finalState)
         else:
             # the automaton was not empty
             state = State()
-            self.finalState.addTransition(letter,state)
+            self.finalState.addTransition(letter, state)
             self.finalState = state
 
     def concatenateWith(self, automaton: 'Automaton'):
@@ -80,42 +79,13 @@ class Automaton:
         """ build automaton? """
         self.startingState.addEpsilonTransition(self.finalState)
 
+    def iterateQuantifier(self, quantifier):
+        if quantifier == STAR:
+            self.iterateStar()
+        elif quantifier == PLUS:
+            self.iteratePlus()
+        elif quantifier == OPTIONAL:
+            self.iterateOptional()
 
-def buildAutomaton(regex: str) -> 'Automaton':
-    """ the regex is a valid non empty regular expression """
-    i = 0
-    while i < len(regex):
-
-
-
-def checkRegExValidity(regex: str, languageSymboles: set):
-    return areValideParenthesis(regex) and \
-           areValideQuantifiers(regex) and \
-           areValideSymboles(regex) and \
-           areLanguageSymboles(regex, languageSymboles)
-
-
-def areValideSymboles(regex: str):
-    pattern = re.compile(r'(\w).*\1')
-    return pattern.search(regex) is None
-
-
-def areValideQuantifiers(regex: str):
-    pattern = re.compile(r'(?<=[^\w)])[?*+]|^[?+*]')
-    return pattern.search(regex) is None
-
-
-def areLanguageSymboles(regex: str, languageSymboles: set):
-    usedSymboles = set(re.sub(r'[?+*()]', '', regex))
-    return languageSymboles.intersection(usedSymboles) == usedSymboles
-
-
-def areValideParenthesis(regex: str):
-    first = regex.find('(')
-    if first == -1:
-        return regex.rfind(')') == -1
-    # open parenthesis detected
-    last = regex.rfind(')')
-    if last - first <= 1:
-        return False
-    return True and areValideParenthesis(regex[first + 1:last])
+    def isEmpty(self):
+        return self.finalState is None
