@@ -1,9 +1,9 @@
 import re
-from model_automaton import Automaton
+from model_automaton import NFAAutomaton
 from model_automaton import O_PARENTHESIS, C_PARENTHESIS, STAR, PLUS, OPTIONAL
 
 
-def makeAutomaton(regex: str, languageSymbols: set) -> 'Automaton':
+def makeAutomaton(regex: str, languageSymbols: set) -> 'NFAAutomaton':
     if not isValidRegex(regex, languageSymbols):
         return None
     regexWithParenthesis = transformRegex(regex)
@@ -11,10 +11,10 @@ def makeAutomaton(regex: str, languageSymbols: set) -> 'Automaton':
     return automaton
 
 
-def buildAutomaton(regex: str) -> 'Automaton':
+def buildAutomaton(regex: str) -> 'NFAAutomaton':
     """ the regex is a valid non empty regular expression """
     i = 0
-    automaton = Automaton()
+    automaton = NFAAutomaton()
     subAutomaton = None
     while i < len(regex):
         symbol = regex[i]
@@ -48,7 +48,7 @@ def buildAutomaton(regex: str) -> 'Automaton':
 
 
 def transformRegex(regex: str) -> str:
-    """put brackets around quantified symbols, to simplify the DFN construction"""
+    """put parenthesis around quantified symbols, to simplify the DFN construction"""
     return re.sub(r'(\w)([?*+])', r'(\1)\2', regex)
 
 
@@ -100,6 +100,7 @@ def areValidParenthesis(regex: str):
             if j - i <= 1:
                 return False
             else:
+                #todo i+= 1 (nested parenthesis)
                 i = j + 1
         elif symbol == C_PARENTHESIS:
             return False

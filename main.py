@@ -1,9 +1,7 @@
 from parser_xml_form_checker import XMLFormParser
 import sys
+from model_automaton_builder import makeAutomaton
 
-xmlFileArgIndex = 1
+automaton = makeAutomaton("a*", set("a"))
 
-xmlFilePath = sys.argv[xmlFileArgIndex]
-xmlFormParser = XMLFormParser()
-
-xmlFormParser.checkWellFormedness(xmlFilePath)
+d = automaton.matches("aaa")

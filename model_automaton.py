@@ -11,18 +11,47 @@ OPTIONAL = '?'
 class State:
     def __init__(self):
         self.transitions = defaultdict(lambda: None)
+        self.final = False
+        self.epsilonTransitions = set()
+
+    def getTransitions(self):
+        return self.transitions
+
+    def isFinal(self):
+        return self.final
+
+    def setFinal(self, final):
+        self.final = final
 
     def addTransition(self, letter, state: 'State'):
         self.transitions[letter] = state
 
     def addEpsilonTransition(self, state: 'State'):
-        self.transitions[EPSILON] = state
+        self.epsilonTransitions.add(state)
 
-    def getNextState(self, letter):
+    def getNextState(self, letter)->'State':
         return self.transitions[letter]
 
-    def getEpsilonState(self):
-        self.getNextState(EPSILON)
+    def getEpsilonStates(self) -> set:
+        return self.epsilonTransitions
+
+    def getEpsilonAccessibleStates(self) -> set:
+        statesToVisit = self.getEpsilonStates()
+        statesVisited = {self}
+        statesToAdd = set()
+
+        while len(statesToVisit) != 0:
+            for state in statesToVisit:
+                statesToAdd = statesToAdd.union(state.getEpsilonStates())
+            statesVisited = statesVisited.union(statesToVisit)
+            statesToVisit = statesToAdd.difference(statesVisited)
+            statesToAdd = set()
+        return statesVisited
+
+    def getSymbolEpsilonStar(self, symbol):
+        state = self.getNextState(symbol)
+        if state is None: return None
+        return state.getEpsilonStates()
 
     def clone(self):
         state = State()
@@ -30,10 +59,41 @@ class State:
         return state
 
 
-class Automaton:
+class DFAAutomaton:
+    def __init__(self):
+        self.startingState = None
+
+    def matches(self, string):
+        """ true if the automaton matches the string, false otherwise"""
+        state = self.startingState
+        for c in string:
+            state = state.getNextState(c)
+            if state is None: return False
+        return state.isFinal()
+
+
+class NFAAutomaton:
     def __init__(self):
         self.startingState = None
         self.finalState = None
+
+    def toDFA(self) -> 'DFAAutomaton':
+
+        statesToVisit = {self.startingState}
+        statesVisited = set()
+        transitionTable = {}
+        symbols = "symbols"
+
+        while len(statesToVisit) != 0:
+            for state in statesToVisit:
+                statesVisited.add(state)
+                # put the transition of the state in the table
+                transitionTable[state] = {symbols: state.getTransitions(),
+                                          EPSILON: state.getEpsilonAccessibleStates()}
+
+
+    def isFinal(self, state: 'State'):
+        return self.finalState == state
 
     def getFinalState(self):
         return self.finalState
@@ -59,7 +119,7 @@ class Automaton:
             self.finalState.addTransition(letter, state)
             self.finalState = state
 
-    def concatenateWith(self, automaton: 'Automaton'):
+    def concatenateWith(self, automaton: 'NFAAutomaton'):
         """modify this automaton and constructs another one: which is the concatenation of the two"""
         self.finalState.addEpsilonTransition(automaton.getStartingState())
         self.finalState = automaton.getFinalState()
