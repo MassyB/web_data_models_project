@@ -1,7 +1,9 @@
 import re
 from model_automaton import Automaton
 from model_automaton import O_PARENTHESIS, C_PARENTHESIS, STAR, PLUS, OPTIONAL
+from model_stack import Stack
 
+AND = '&'
 
 
 def addAndSymbols(regex: str) -> str:
@@ -13,7 +15,42 @@ def addAndSymbols(regex: str) -> str:
 
 
 def infixToPostfix(regex: str) -> str:
-    pass
+    s = Stack()
+    regex = addAndSymbols(regex)
+    postfix_regex = ""
+    for c in regex:
+        if isSymbol(c):
+            postfix_regex += c
+        elif isOperator(c):
+            if isQuantifier(c):
+                s.push(c)
+            else:
+                # it's the and operator
+                while not s.isEmpty() and isQuantifier(s.last()):
+                    postfix_regex += s.pop()
+                s.push(c)
+        elif c == O_PARENTHESIS:
+            s.push(c)
+        elif c == C_PARENTHESIS:
+            while not s.isEmpty() and s.last() != O_PARENTHESIS:
+                postfix_regex += s.pop()
+            if not s.isEmpty():
+                s.pop()
+    while not s.isEmpty():
+        postfix_regex += s.pop()
+    return postfix_regex
+
+
+def isQuantifier(c: str) -> bool:
+    return re.match(r'[+*?]', c) is not None
+
+
+def isOperator(c: str) -> bool:
+    return re.match(r'[?+*&]', c) is not None
+
+
+def isSymbol(c: str) -> bool:
+    return re.match(r'[a-zA-Z]', c) is not None
 
 
 def isValidRegex(regex: str, languageSymbols: set):
