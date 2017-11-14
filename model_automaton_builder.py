@@ -1,14 +1,40 @@
 import re
-from model_automaton import Automaton
+from model_automaton import NFA, O_PARENTHESIS, C_PARENTHESIS, AND
 from model_stack import Stack
 
-AND = '&'
-EPSILON = '_'
-O_PARENTHESIS = '('
-C_PARENTHESIS = ')'
-STAR = '*'
-PLUS = '+'
-OPTIONAL = '?'
+
+def getNFAFromRegex(regex: str):
+    """ first we will check the validity of the regex, if it's not
+        the automaton won't be constructed"""
+    if not isValidRegex(regex):
+        return None
+    postfix_regex = convertFromInfixToPostfix(addAndSymbols(regex))
+    return getNFAFromPostfix(postfix_regex)
+
+
+def getNFAFromPostfix(regex: str) -> 'NFA':
+    """ we will use a stack which will contain automatons
+        the evaluation of the regex will be the construction,
+        step by step, of the automaton"""
+    s = Stack()
+    for c in regex:
+        if isSymbol(c):
+            nfa = NFA.createNFAFromLetter(c)
+            s.push(nfa)
+
+        elif isQuantifier(c):
+            nfa = s.pop()
+            nfa.iterateQuantifier(c)
+            s.push(nfa)
+
+        elif c == AND:
+            nfa2 = s.pop()
+            nfa1 = s.pop()
+            nfa1.concatenateWith(nfa2)
+            s.push(nfa1)
+    # the final result the automaton
+    nfa = s.pop()
+    return nfa
 
 
 def addAndSymbols(regex: str) -> str:
@@ -19,7 +45,7 @@ def addAndSymbols(regex: str) -> str:
     return regex
 
 
-def infixToPostfix(regex: str) -> str:
+def convertFromInfixToPostfix(regex: str) -> str:
     s = Stack()
     regex = addAndSymbols(regex)
     postfix_regex = ""
@@ -58,11 +84,10 @@ def isSymbol(c: str) -> bool:
     return re.match(r'[a-zA-Z]', c) is not None
 
 
-def isValidRegex(regex: str, languageSymbols: set):
+def isValidRegex(regex: str):
     return areValidParenthesis(regex) and \
            areValidQuantifiers(regex) and \
-           areValidSymbols(regex) and \
-           areLanguageSymbols(regex, languageSymbols)
+           areValidSymbols(regex)
 
 
 def areValidSymbols(regex: str):
@@ -73,11 +98,6 @@ def areValidSymbols(regex: str):
 def areValidQuantifiers(regex: str):
     pattern = re.compile(r'(?<=[^\w)])[?*+]|^[?+*]')
     return pattern.search(regex) is None
-
-
-def areLanguageSymbols(regex: str, languageSymboles: set):
-    usedSymbols = set(re.sub(r'[?+*()]', '', regex))
-    return languageSymboles.intersection(usedSymbols) == usedSymbols
 
 
 def getClosedParenthesisIndex(regex: str, openParenthesisIndex):

@@ -1,9 +1,10 @@
-from parser_xml_form_checker import XMLFormParser
-import sys
+from model_automaton_builder import getNFAFromPostfix
+from pprint import pprint
 
-xmlFileArgIndex = 1
+nfa = getNFAFromPostfix("ab?&")
+print(nfa.getSymbols())
 
-xmlFilePath = sys.argv[xmlFileArgIndex]
-xmlFormParser = XMLFormParser()
+nfa.toDFA()
+print("hello")
 
-xmlFormParser.checkWellFormedness(xmlFilePath)
+
