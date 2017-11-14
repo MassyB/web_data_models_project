@@ -50,7 +50,7 @@ class NFA:
     def toDFA(self):
         self.initStates()
         self.setEpsilonClosures()
-        transition_table = defaultdict(lambda: {})
+        transition_table = defaultdict(lambda: defaultdict(lambda: None))
         tuple_state = defaultdict(lambda: State())
         dfa_start_state = None
         dfa_final_states = set()
@@ -213,5 +213,15 @@ class DFA:
         self.start_state = start_state
         self.final_states = final_states
 
-    def match(self, s: str):
-        pass
+    def match(self, string: str):
+        c_state = self.start_state
+        symbols_read = 0
+        for s in string:
+            if c_state is not None:
+                c_state = c_state.getNextState(s)
+                symbols_read += 1
+            else:
+                break
+        if symbols_read < len(string) or c_state not in self.final_states:
+            return False
+        return True
