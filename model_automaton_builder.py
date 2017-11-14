@@ -2,10 +2,17 @@ import re
 from model_automaton import Automaton
 from model_automaton import O_PARENTHESIS, C_PARENTHESIS, STAR, PLUS, OPTIONAL
 
-def addAndSymbols(regex: str)-> str:
 
 
-def infixToPostfix(regex: str)->str:
+def addAndSymbols(regex: str) -> str:
+    tr_regex = ""
+    while tr_regex != regex:
+        tr_regex = regex
+        regex = re.sub(r'([\w+?*)])([\w(])', r'\1&\2', regex)
+    return regex
+
+
+def infixToPostfix(regex: str) -> str:
     pass
 
 
