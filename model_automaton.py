@@ -1,39 +1,30 @@
 from collections import defaultdict
-
-EPSILON = '_'
-O_PARENTHESIS = '('
-C_PARENTHESIS = ')'
-STAR = '*'
-PLUS = '+'
-OPTIONAL = '?'
+from model_automaton_builder import EPSILON
 
 
 class State:
     def __init__(self):
         self.transitions = defaultdict(lambda: None)
+        self.transitions[EPSILON] = set()
 
     def addTransition(self, letter, state: 'State'):
         self.transitions[letter] = state
 
     def addEpsilonTransition(self, state: 'State'):
-        self.transitions[EPSILON] = state
+        self.transitions[EPSILON].add(state)
 
     def getNextState(self, letter):
         return self.transitions[letter]
 
-    def getEpsilonState(self):
-        self.getNextState(EPSILON)
-
-    def clone(self):
-        state = State()
-        state.transitions = self.transitions
-        return state
+    def getEpsilonStates(self):
+        return self.transitions[EPSILON]
 
 
-class Automaton:
+class NFA:
     def __init__(self):
         self.startingState = None
         self.finalState = None
+        self.symbols = set()
 
     def getFinalState(self):
         return self.finalState
@@ -47,45 +38,31 @@ class Automaton:
     def setStartingState(self, startingState):
         self.startingState = startingState
 
+    def toDFA(self):
+        pass
+
     def addTransition(self, letter):
-        if self.finalState is None:
-            # the automaton was previously empty
-            self.startingState = State()
-            self.finalState = State()
-            self.startingState.addTransition(letter, self.finalState)
-        else:
-            # the automaton was not empty
-            state = State()
-            self.finalState.addTransition(letter, state)
-            self.finalState = state
+        pass
 
     def concatenateWith(self, automaton: 'Automaton'):
-        """modify this automaton and constructs another one: which is the concatenation of the two"""
-        self.finalState.addEpsilonTransition(automaton.getStartingState())
-        self.finalState = automaton.getFinalState()
+        pass
 
     def iterateStar(self):
-        """ build automaton* """
-        self.startingState.addEpsilonTransition(self.finalState)
-        self.finalState.addEpsilonTransition(self.startingState)
+        pass
 
     def iteratePlus(self):
-        """ build automaton+ """
-        startingSateClone = self.startingState.clone()
-        self.iterateStar()
-        self.startingState = startingSateClone
+        pass
 
     def iterateOptional(self):
-        """ build automaton? """
-        self.startingState.addEpsilonTransition(self.finalState)
+        pass
 
     def iterateQuantifier(self, quantifier):
-        if quantifier == STAR:
-            self.iterateStar()
-        elif quantifier == PLUS:
-            self.iteratePlus()
-        elif quantifier == OPTIONAL:
-            self.iterateOptional()
+        pass
 
     def isEmpty(self):
-        return self.finalState is None
+        pass
+
+
+class DFA(NFA):
+    def match(self, s: str):
+        pass

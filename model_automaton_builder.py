@@ -1,9 +1,14 @@
 import re
 from model_automaton import Automaton
-from model_automaton import O_PARENTHESIS, C_PARENTHESIS, STAR, PLUS, OPTIONAL
 from model_stack import Stack
 
 AND = '&'
+EPSILON = '_'
+O_PARENTHESIS = '('
+C_PARENTHESIS = ')'
+STAR = '*'
+PLUS = '+'
+OPTIONAL = '?'
 
 
 def addAndSymbols(regex: str) -> str:
