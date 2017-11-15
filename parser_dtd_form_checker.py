@@ -11,7 +11,7 @@ class DTDParser:
         self.element_dfa_dict = None
         self.dtd_path = dtd_path
 
-    def isWellFormed(self):
+    def isWellFormed(self)-> bool:
 
         dtd_file = open(self.dtd_path)
         well_formed = True

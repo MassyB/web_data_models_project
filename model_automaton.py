@@ -230,4 +230,4 @@ class DFA:
     def getTrivialDFA():
         """a DFA that matches the empty string"""
         s = State()
-        return DFA(s, set(s))
+        return DFA(s, {s})

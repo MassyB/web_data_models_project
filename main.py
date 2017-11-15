@@ -1,14 +1,30 @@
-from model_automaton_builder import getNFAFromPostfix
-from pprint import pprint
+from parser_xml_form_checker import XMLParser
+from parser_dtd_form_checker import DTDParser
 
-nfa = getNFAFromPostfix("ab?&")
-print(nfa.getSymbols())
+xml_file_path = "example.xml"
+dtd_file_path = "example.dtd"
 
-dfa = nfa.toDFA()
-print(dfa.match("ab"))
-print(dfa.match("a"))
-print(dfa.match(""))
-print(dfa.match("c"))
-print(dfa.match("azertyhujl"))
+
+xml_parser = XMLParser(xml_file_path)
+xml_is_well_formed= xml_parser.isWellFormed()
+if not xml_is_well_formed:
+    print("xml not well-formed")
+else:
+    print("xml well-formed")
+
+dtd_parser = DTDParser(dtd_file_path)
+dtd_is_well_formed = dtd_parser.isWellFormed()
+
+if not dtd_is_well_formed:
+    print("dtd not well-formed")
+else:
+    print("dtd well-formed")
+
+is_valid = xml_parser.isValid(dtd_parser)
+
+if is_valid:
+    print("valid")
+else:
+    print("valid")
 
 

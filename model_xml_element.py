@@ -2,16 +2,19 @@ class XMLElement:
     openingSymbole = "0"
     closingSymbole = "1"
 
-    def __init__(self, opening, elementName, parent=None, children=list()):
+    def __init__(self, opening, elementName, parent=None):
         self.opening = opening
         self.elementName = elementName
         self.parent = parent
-        self.children = children
+        self.children = list()
 
     def setParent(self, parentNode: 'XMLElement'):
         if parentNode is not None:
             self.parent = parentNode
             parentNode.getChildren().append(self)
+
+    def isLeaf(self)-> bool:
+        return len(self.children) == 0
 
     def isOpening(self):
         return self.opening == XMLElement.openingSymbole

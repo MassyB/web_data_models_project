@@ -14,7 +14,7 @@ class XMLParser:
         self.xml_tree = None
         self.xml_path = xml_path
 
-    def isWellFormed(self):
+    def isWellFormed(self)-> bool:
         wellFormed = True
         stack = Stack()
 
@@ -52,3 +52,24 @@ class XMLParser:
             self.xml_tree = XMLTree(lastXMLNode)
 
         return wellFormed
+
+    def isValid(self, dtd_parser) -> bool:
+        return self.isValidNode(self.xml_tree.getRoot(),dtd_parser)
+
+    def isValidNode(self, node, dtd_parser) -> bool:
+        """check the validity of tree recursively """
+        if node.isLeaf():
+            return dtd_parser.isValidElement(node.getName(), "")
+        else:
+            # get all the children
+            children = node.getChildren()
+            # if one child is not valid  then the element is not valid too
+
+            for child in children:
+
+                if not self.isValidNode(child, dtd_parser):
+                    return False
+
+            # verify if the element is valid
+            children_string = node.getChildrenAsString()
+            return dtd_parser.isValidElement(node.getName(), children_string)
