@@ -1,62 +1,93 @@
 import re
-from model_automaton import NFAAutomaton
-from model_automaton import O_PARENTHESIS, C_PARENTHESIS, STAR, PLUS, OPTIONAL
+from model_automaton import NFA, O_PARENTHESIS, C_PARENTHESIS, AND
+from model_stack import Stack
 
 
-def makeAutomaton(regex: str, languageSymbols: set) -> 'NFAAutomaton':
-    if not isValidRegex(regex, languageSymbols):
+def getNFAFromRegex(regex: str):
+    """ first we will check the validity of the regex, if it's not
+        the automaton won't be constructed"""
+    if not isValidRegex(regex):
         return None
-    regexWithParenthesis = transformRegex(regex)
-    automaton = buildAutomaton(regexWithParenthesis)
-    return automaton
+    postfix_regex = convertFromInfixToPostfix(addAndSymbols(regex))
+    return getNFAFromPostfix(postfix_regex)
 
 
-def buildAutomaton(regex: str) -> 'NFAAutomaton':
-    """ the regex is a valid non empty regular expression """
-    i = 0
-    automaton = NFAAutomaton()
-    subAutomaton = None
-    while i < len(regex):
-        symbol = regex[i]
-        if symbol.isalpha():
-            automaton.addTransition(symbol)
-            i += 1
+def getNFAFromPostfix(regex: str) -> 'NFA':
+    """ we will use a stack which will contain automatons
+        the evaluation of the regex will be the construction,
+        step by step, of the automaton"""
+    s = Stack()
+    for c in regex:
+        if isSymbol(c):
+            nfa = NFA.createNFAFromLetter(c)
+            s.push(nfa)
 
-        elif symbol == O_PARENTHESIS:
+        elif isQuantifier(c):
+            nfa = s.pop()
+            nfa.iterateQuantifier(c)
+            s.push(nfa)
 
-            closedPraenthesisIndex = getClosedParenthesisIndex(regex, i)
-            subRegex = regex[i + 1: closedPraenthesisIndex]
-            subAutomaton = buildAutomaton(subRegex)
-            i = closedPraenthesisIndex + 1
+        elif c == AND:
+            nfa2 = s.pop()
+            nfa1 = s.pop()
+            nfa1.concatenateWith(nfa2)
+            s.push(nfa1)
+    # the final result the automaton
+    nfa = s.pop()
+    return nfa
 
-        elif symbol == STAR or symbol == PLUS or symbol == OPTIONAL:
-            subAutomaton.iterateQuantifier(symbol)
-            if automaton.isEmpty():
-                automaton = subAutomaton
+
+def addAndSymbols(regex: str) -> str:
+    tr_regex = ""
+    while tr_regex != regex:
+        tr_regex = regex
+        regex = re.sub(r'([\w+?*)])([\w(])', r'\1&\2', regex)
+    return regex
+
+
+def convertFromInfixToPostfix(regex: str) -> str:
+    s = Stack()
+    regex = addAndSymbols(regex)
+    postfix_regex = ""
+    for c in regex:
+        if isSymbol(c):
+            postfix_regex += c
+        elif isOperator(c):
+            if isQuantifier(c):
+                s.push(c)
             else:
-                automaton.concatenateWith(subAutomaton)
-            subAutomaton = None
-            i += 1
-
-    if subAutomaton is not None:
-        if automaton.isEmpty():
-            automaton = subAutomaton
-        else:
-            automaton.concatenateWith(subAutomaton)
-
-    return automaton
-
-
-def transformRegex(regex: str) -> str:
-    """put parenthesis around quantified symbols, to simplify the DFN construction"""
-    return re.sub(r'(\w)([?*+])', r'(\1)\2', regex)
+                # it's the and operator
+                while not s.isEmpty() and isQuantifier(s.last()):
+                    postfix_regex += s.pop()
+                s.push(c)
+        elif c == O_PARENTHESIS:
+            s.push(c)
+        elif c == C_PARENTHESIS:
+            while not s.isEmpty() and s.last() != O_PARENTHESIS:
+                postfix_regex += s.pop()
+            if not s.isEmpty():
+                s.pop()
+    while not s.isEmpty():
+        postfix_regex += s.pop()
+    return postfix_regex
 
 
-def isValidRegex(regex: str, languageSymbols: set):
+def isQuantifier(c: str) -> bool:
+    return re.match(r'[+*?]', c) is not None
+
+
+def isOperator(c: str) -> bool:
+    return re.match(r'[?+*&]', c) is not None
+
+
+def isSymbol(c: str) -> bool:
+    return re.match(r'[a-zA-Z]', c) is not None
+
+
+def isValidRegex(regex: str):
     return areValidParenthesis(regex) and \
            areValidQuantifiers(regex) and \
-           areValidSymbols(regex) and \
-           areLanguageSymbols(regex, languageSymbols)
+           areValidSymbols(regex)
 
 
 def areValidSymbols(regex: str):
@@ -67,11 +98,6 @@ def areValidSymbols(regex: str):
 def areValidQuantifiers(regex: str):
     pattern = re.compile(r'(?<=[^\w)])[?*+]|^[?+*]')
     return pattern.search(regex) is None
-
-
-def areLanguageSymbols(regex: str, languageSymboles: set):
-    usedSymbols = set(re.sub(r'[?+*()]', '', regex))
-    return languageSymboles.intersection(usedSymbols) == usedSymbols
 
 
 def getClosedParenthesisIndex(regex: str, openParenthesisIndex):
@@ -100,7 +126,6 @@ def areValidParenthesis(regex: str):
             if j - i <= 1:
                 return False
             else:
-                #todo i+= 1 (nested parenthesis)
                 i = j + 1
         elif symbol == C_PARENTHESIS:
             return False

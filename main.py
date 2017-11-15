@@ -1,7 +1,14 @@
-from parser_xml_form_checker import XMLFormParser
-import sys
-from model_automaton_builder import makeAutomaton
+from model_automaton_builder import getNFAFromPostfix
+from pprint import pprint
 
-automaton = makeAutomaton("a*", set("a"))
+nfa = getNFAFromPostfix("ab?&")
+print(nfa.getSymbols())
 
-d = automaton.matches("aaa")
+dfa = nfa.toDFA()
+print(dfa.match("ab"))
+print(dfa.match("a"))
+print(dfa.match(""))
+print(dfa.match("c"))
+print(dfa.match("azertyhujl"))
+
+
