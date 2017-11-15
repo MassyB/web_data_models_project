@@ -10,14 +10,15 @@ class XMLParser:
     openingGroup = "opening"
     elementNameGroup = "elementName"
 
-    def __init__(self):
+    def __init__(self, xml_path: str):
         self.xml_tree = None
+        self.xml_path = xml_path
 
-    def isWellFormed(self, xml_path: str):
+    def isWellFormed(self):
         wellFormed = True
         stack = Stack()
 
-        xmlFile = open(xml_path)
+        xmlFile = open(self.xml_path)
         for line in xmlFile:
             match = XMLParser.linePattern.match(line)
 

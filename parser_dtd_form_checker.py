@@ -7,12 +7,13 @@ class DTDParser:
     element_name_group = "elementName"
     element_regex_group = "elementRegEx"
 
-    def __init__(self):
+    def __init__(self, dtd_path):
         self.element_dfa_dict = None
+        self.dtd_path = dtd_path
 
-    def isWellFormed(self, dtdPath: str):
+    def isWellFormed(self):
 
-        dtd_file = open(dtdPath)
+        dtd_file = open(self.dtd_path)
         well_formed = True
         element_dfa_dict = {}
         for line in dtd_file:
