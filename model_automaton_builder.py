@@ -109,7 +109,7 @@ def areValidSymbols(regex: str):
 
 def areValidCharacters(regex: str):
     """check that the string contains only symbols, quantifiers, and parenthesis"""
-    return re.match(r'[^\w?+*()]', regex) is None
+    return re.match(r'[^A-Za-z?+*()]', regex) is None
 
 
 def areValidQuantifiers(regex: str):
