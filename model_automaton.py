@@ -225,3 +225,9 @@ class DFA:
         if symbols_read < len(string) or c_state not in self.final_states:
             return False
         return True
+
+    @staticmethod
+    def getTrivialDFA():
+        """a DFA that matches the empty string"""
+        s = State()
+        return DFA(s, set(s))

@@ -1,9 +1,12 @@
 import re
-from model_automaton import NFA, O_PARENTHESIS, C_PARENTHESIS, AND
+from model_automaton import NFA, DFA, O_PARENTHESIS, C_PARENTHESIS, AND, EPSILON
 from model_stack import Stack
 
 
 def getDFAFromRegex(regex: str):
+    if regex == EPSILON:
+        return DFA.getTrivialDFA()
+
     nfa = getNFAFromRegex(regex)
     if nfa is not None:
         return nfa.toDFA()
