@@ -3,6 +3,14 @@ from model_automaton import NFA, O_PARENTHESIS, C_PARENTHESIS, AND
 from model_stack import Stack
 
 
+def getDFAFromRegex(regex: str):
+    nfa = getNFAFromRegex(regex)
+    if nfa is not None:
+        return nfa.toDFA()
+    # there is an error in the regex (it's not a valid one)
+    return None
+
+
 def getNFAFromRegex(regex: str):
     """ first we will check the validity of the regex, if it's not
         the automaton won't be constructed"""
@@ -87,12 +95,18 @@ def isSymbol(c: str) -> bool:
 def isValidRegex(regex: str):
     return areValidParenthesis(regex) and \
            areValidQuantifiers(regex) and \
-           areValidSymbols(regex)
+           areValidSymbols(regex) and \
+           areValidCharacters(regex)
 
 
 def areValidSymbols(regex: str):
     pattern = re.compile(r'(\w).*\1')
     return pattern.search(regex) is None
+
+
+def areValidCharacters(regex: str):
+    """check that the string contains only symbols, quantifiers, and parenthesis"""
+    return re.match(r'[^\w?+*()]', regex) is None
 
 
 def areValidQuantifiers(regex: str):
