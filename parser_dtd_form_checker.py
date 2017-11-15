@@ -10,7 +10,7 @@ class DTDParser:
     def __init__(self):
         self.element_dfa_dict = None
 
-    def checkWellFormedness(self, dtdPath: str):
+    def isWellFormed(self, dtdPath: str):
 
         dtd_file = open(dtdPath)
         well_formed = True

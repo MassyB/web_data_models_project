@@ -1,5 +1,4 @@
 class XMLElement:
-
     openingSymbole = "0"
     closingSymbole = "1"
 
@@ -8,10 +7,6 @@ class XMLElement:
         self.elementName = elementName
         self.parent = parent
         self.children = children
-        self.nbWellFormed = 0 # the number of well-formed children
-
-    def toString(self):
-        return self.elementName
 
     def setParent(self, parentNode: 'XMLElement'):
         if parentNode is not None:
@@ -33,26 +28,8 @@ class XMLElement:
     def getChildren(self):
         return self.children
 
-    def getNbChildren(self):
-        return len(self.getChildren())
-
-    def getNbWellFormed(self):
-        return self.nbWellFormed
-
-    def incNbWellFormed(self):
-        self.nbWellFormed += 1
-
-    def isRoot(self):
-        return self.parent is None
-
-    def getParent(self):
-        return self.parent
-
-    def getAncestor(self, index):
-        pass
-
-    def getSibling(self):
-        pass
-
-    def getChild(self, index):
-        pass
+    def getChildrenAsString(self):
+        children_string = ""
+        for childe in self.children:
+            children_string += childe.getName()
+        return children_string
