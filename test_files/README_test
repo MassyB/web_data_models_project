@@ -1,0 +1,8 @@
+the xml files contained in this directory
+follow the dtd of the exam (with a little bit of modification, to make the evaluation of regex more
+interesting. each one is named according to the number of nodes he had
+
+directory   person*
+person      name, salary, location+
+name        first?, last
+location    street, city, office?, avenue
