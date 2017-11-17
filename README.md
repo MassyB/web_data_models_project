@@ -20,4 +20,4 @@ either you download each of the dependencies or you just install [Anaconda3](htt
 run the command below:  
 **`jupyter notebook <path_to_notebook>`**.  if you are in the root of the project hierarchy, **`<path_to_notebook>`** should be replaced by **`jupyter_notebook/YAX_parser.ipynb`**
 
-you can find a none executable version of the notebook [here in GitHub](https://github.com/MassyB/web_data_models_project/blob/master/jupyter_notebook/YAX_parser.ipynb)
+you can find a none executable version of the notebook [here in GitHub](https://github.com/MassyB/web_data_models_project/blob/master/jupyter_notebook/YAX_parser.ipynb), but it's not displaying the figure for Thompons' construction rules.
