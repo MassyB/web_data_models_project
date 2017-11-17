@@ -34,4 +34,6 @@ class DTDParser:
         return well_formed
 
     def isValidElement(self, element_name, children: str):
+        if element_name not in self.element_dfa_dict:
+            return None
         return self.element_dfa_dict[element_name].match(children)
