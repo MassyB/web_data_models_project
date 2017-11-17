@@ -54,10 +54,10 @@ class XMLParser:
         return wellFormed
 
     def isValid(self, dtd_parser) -> bool:
-        return self.isValidNode(self.xml_tree.getRoot(),dtd_parser)
+        return self.isValidNode(self.xml_tree.getRoot(), dtd_parser)
 
     def isValidNode(self, node, dtd_parser) -> bool:
-        """check the validity of tree recursively """
+        """check the validity of tree using recursion"""
         if node.isLeaf():
             return dtd_parser.isValidElement(node.getName(), "")
         else:
